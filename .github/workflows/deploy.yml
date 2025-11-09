@@ -7,8 +7,6 @@ on:
     branches:
       # Production
       - main
-      # Feature branch
-      - build/deploy-gh-pages
     paths:
       # Application files
       - 'src/**'
