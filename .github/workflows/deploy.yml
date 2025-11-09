@@ -1,0 +1,60 @@
+name: Deploy CD
+
+on:
+
+  # Run on push on production branches
+  push:
+    branches:
+      # Production
+      - main
+    paths:
+      # Application files
+      - 'src/**'
+
+  # Run on manual triggers
+  workflow_dispatch:
+
+# Set default GITHUB_TOKEN permissions for the workflow
+permissions:
+  contents: read
+
+# Set workflow concurrency rules
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+
+  # Deploy job
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    # Set GITHUB_TOKEN permissions for the job
+    permissions:
+      id-token: write
+      pages: write
+
+    # Set deployment environment
+    environment:
+      name: production
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+
+      # Dependency steps
+
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      # Execution steps
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./src
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
